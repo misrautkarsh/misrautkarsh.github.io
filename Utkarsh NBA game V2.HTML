@@ -1,0 +1,357 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Journey: The RPG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0c0c0c;
+            color: #e5e7eb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            background-image: url('https://placehold.co/1920x1080/1a1a1a/cccccc?text=Basketball+Court+Background');
+            background-size: cover;
+            background-position: center;
+        }
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            color: #ef4444; /* Red for basketball theme */
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.2s;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card h3 {
+            font-size: 1rem;
+            color: #d1d5db;
+            margin-bottom: 0.25rem;
+        }
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+        .input-section {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+        }
+        .form-input {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #4b5563;
+            background-color: #1f2937;
+            color: #e5e7eb;
+            width: 100%;
+        }
+        .main-btn {
+            background-image: linear-gradient(to right, #ef4444, #b91c1c);
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+        }
+        .main-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .narrative-box {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #d1d5db;
+            text-align: center;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div id="start-screen">
+            <h1 class="text-4xl font-extrabold mb-2">NBA Journey RPG</h1>
+            <p class="text-center text-gray-400 mb-8">Create your player and begin your career journey.</p>
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="player-name" class="text-sm font-semibold mb-2">Player Name</label>
+                    <input type="text" id="player-name" class="form-input" placeholder="e.g., Jalen Green">
+                </div>
+                <div class="input-group">
+                    <label for="player-position" class="text-sm font-semibold mb-2">Position</label>
+                    <select id="player-position" class="form-input">
+                        <option value="Guard">Guard</option>
+                        <option value="Forward">Forward</option>
+                        <option value="Center">Center</option>
+                    </select>
+                </div>
+                <button class="main-btn w-full mt-4" onclick="startGame()">Start Journey</button>
+            </div>
+        </div>
+
+        <div id="game-screen" class="hidden">
+            <h1 id="player-title" class="text-2xl mb-4"></h1>
+            <div class="stats-grid" id="stats-display">
+                <!-- Stats will be dynamically inserted here -->
+            </div>
+            <div class="narrative-box">
+                <p id="narrative-text"></p>
+            </div>
+            <div class="input-section mt-8">
+                <h3 id="decision-prompt" class="text-xl font-bold text-center mb-4"></h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="decision-buttons">
+                    <!-- Buttons will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="end-screen" class="hidden">
+            <h1 class="text-4xl font-extrabold mb-4">Contract Offer! 💰</h1>
+            <div class="narrative-box">
+                <p id="final-narrative" class="text-center"></p>
+                <div class="mt-4 text-2xl font-bold" id="final-salary"></div>
+            </div>
+            <button class="main-btn w-full mt-8" onclick="location.reload()">Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let player = {};
+        let careerStats = {};
+        let season = 0;
+        const totalSeasons = 3;
+
+        // Player stat weights for salary calculation
+        const SALARY_WEIGHTS = {
+            college: 0.5,
+            assists: 1.5,
+            rebounds: 1.0,
+            shotsMade: 2.0,
+            threePointers: 3.5
+        };
+        
+        // NIL weights based on marketability of skills
+        const NIL_WEIGHTS = {
+            assists: 10000,
+            rebounds: 8000,
+            shotsMade: 15000,
+            threePointers: 25000,
+            guardMultiplier: 1.2
+        };
+
+        // UI elements
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        const playerTitle = document.getElementById('player-title');
+        const statsDisplay = document.getElementById('stats-display');
+        const narrativeText = document.getElementById('narrative-text');
+        const decisionPrompt = document.getElementById('decision-prompt');
+        const decisionButtons = document.getElementById('decision-buttons');
+
+        function startGame() {
+            const playerName = document.getElementById('player-name').value || 'The Phenom';
+            const playerPosition = document.getElementById('player-position').value;
+
+            // Generate initial college performance
+            const collegeStats = {
+                assists: Math.round(1 + Math.random() * 5),
+                rebounds: Math.round(2 + Math.random() * 8),
+                shotsMade: Math.round(5 + Math.random() * 10),
+                threePointers: Math.round(0 + Math.random() * 3)
+            };
+            
+            // Calculate NIL quotient based on college stats
+            const nilQuotient = calculateNilQuotient(collegeStats, playerPosition);
+
+            // Initial game state
+            player = { name: playerName, position: playerPosition, nilQuotient: nilQuotient };
+            careerStats = { ...collegeStats };
+            season = 0;
+
+            // Display initial stats and narrative
+            playerTitle.textContent = `${player.name}, the ${player.position}`;
+            renderStats(collegeStats, 'College Performance', nilQuotient);
+            narrativeText.textContent = `You've had a solid career at your college. With your ${collegeStats.assists} assists, ${collegeStats.rebounds} rebounds, and ${collegeStats.shotsMade} shots made, you've caught the eye of NBA scouts. Your projected NIL valuation is $${nilQuotient.toLocaleString('en-US')}. Now it's time to prepare for the draft.`;
+            
+            // Show game screen
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+
+            renderDecisions();
+        }
+
+        function renderStats(stats, title, nilValue = null) {
+            statsDisplay.innerHTML = '';
+            const statData = [
+                { label: 'Assists 🤝', value: stats.assists },
+                { label: 'Rebounds 🏀', value: stats.rebounds },
+                { label: 'Shots Made 💪', value: stats.shotsMade },
+                { label: '3-Pointers 👌', value: stats.threePointers }
+            ];
+
+            const titleCard = document.createElement('div');
+            titleCard.className = 'stat-card md:col-span-full';
+            titleCard.innerHTML = `<h3 class="text-xl font-bold text-white">${title}</h3>`;
+            statsDisplay.appendChild(titleCard);
+            
+            statData.forEach(stat => {
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.innerHTML = `
+                    <h3>${stat.label}</h3>
+                    <p class="stat-value text-red-400">${stat.value}</p>
+                `;
+                statsDisplay.appendChild(card);
+            });
+            
+            // Add NIL quotient card if available
+            if (nilValue !== null) {
+                const nilCard = document.createElement('div');
+                nilCard.className = 'stat-card md:col-span-full';
+                nilCard.innerHTML = `
+                    <h3 class="font-bold text-lg text-yellow-400">Projected NIL Value</h3>
+                    <p class="stat-value text-yellow-400">$${nilValue.toLocaleString('en-US')}</p>
+                `;
+                statsDisplay.appendChild(nilCard);
+            }
+        }
+
+        function renderDecisions() {
+            decisionButtons.innerHTML = '';
+            decisionPrompt.textContent = `Season ${season + 1} - What do you want to focus on?`;
+            
+            const decisions = [
+                { text: 'Focus on Shooting (Shots, 3-Pointers)', statEffect: { shotsMade: 3, threePointers: 2, assists: 0, rebounds: 1 } },
+                { text: 'Focus on Passing (Assists, Rebounds)', statEffect: { shotsMade: 1, threePointers: 0, assists: 3, rebounds: 2 } },
+                { text: 'Focus on All-Around Play', statEffect: { shotsMade: 2, threePointers: 1, assists: 2, rebounds: 2 } }
+            ];
+
+            decisions.forEach(decision => {
+                const button = document.createElement('button');
+                button.className = 'main-btn';
+                button.textContent = decision.text;
+                button.onclick = () => simulateSeason(decision.statEffect);
+                decisionButtons.appendChild(button);
+            });
+        }
+
+        function simulateSeason(effect) {
+            season++;
+            
+            // Apply stat effects with some randomness
+            careerStats.assists += Math.round(effect.assists * (1 + Math.random() * 0.5));
+            careerStats.rebounds += Math.round(effect.rebounds * (1 + Math.random() * 0.5));
+            careerStats.shotsMade += Math.round(effect.shotsMade * (1 + Math.random() * 0.5));
+            careerStats.threePointers += Math.round(effect.threePointers * (1 + Math.random() * 0.5));
+
+            renderStats(careerStats, `NBA Career Stats (Season ${season})`);
+
+            if (season < totalSeasons) {
+                narrativeText.textContent = `You finished season ${season}. Your hard work is paying off! Now, what's your focus for next season?`;
+                renderDecisions();
+            } else {
+                endGame();
+            }
+        }
+
+        function calculateNilQuotient(stats, position) {
+            const baseValue = (stats.assists * NIL_WEIGHTS.assists) +
+                              (stats.rebounds * NIL_WEIGHTS.rebounds) +
+                              (stats.shotsMade * NIL_WEIGHTS.shotsMade) +
+                              (stats.threePointers * NIL_WEIGHTS.threePointers);
+            
+            let positionMultiplier = 1;
+            if (position === 'Guard') {
+                positionMultiplier = NIL_WEIGHTS.guardMultiplier;
+            }
+
+            return Math.round((baseValue * positionMultiplier) / 1000) * 1000;
+        }
+
+        function calculateSalary() {
+            const baseSalary = 5000000; // $5M base salary
+
+            const collegeScore = (careerStats.assists + careerStats.rebounds + careerStats.shotsMade + careerStats.threePointers) / 4;
+            
+            const performanceBonus = 
+                (careerStats.assists * SALARY_WEIGHTS.assists) +
+                (careerStats.rebounds * SALARY_WEIGHTS.rebounds) +
+                (careerStats.shotsMade * SALARY_WEIGHTS.shotsMade) +
+                (careerStats.threePointers * SALARY_WEIGHTS.threePointers);
+            
+            const collegeBonus = collegeScore * SALARY_WEIGHTS.college;
+
+            const finalSalary = baseSalary + (performanceBonus * 500000) + (collegeBonus * 200000);
+            return Math.round(finalSalary / 1000000) * 1000000; // Round to nearest million
+        }
+
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+
+            const finalSalary = calculateSalary();
+            const salaryDisplay = document.getElementById('final-salary');
+            salaryDisplay.textContent = `$${(finalSalary / 1000000).toLocaleString('en-US')}M per year`;
+
+            let contractNarrative = '';
+            if (finalSalary >= 30000000) {
+                contractNarrative = `Your incredible performance and specialized skills have earned you a **Max Contract**! You are a superstar and a franchise cornerstone.`;
+            } else if (finalSalary >= 15000000) {
+                contractNarrative = `Your solid all-around game and consistent production have earned you a top-tier contract. You're a true star in the league.`;
+            } else if (finalSalary >= 8000000) {
+                contractNarrative = `You've proven yourself as a reliable starter and a key part of any team's rotation. You've earned a solid contract.`;
+            } else {
+                contractNarrative = `You've shown flashes of potential, and your contract reflects your valuable role as a key contributor. There's always room to grow!`;
+            }
+            
+            document.getElementById('final-narrative').textContent = contractNarrative;
+        }
+    </script>
+</body>
+</html>
